@@ -1,3 +1,5 @@
+import json
+from pydoc import describe
 from flask import Blueprint, jsonify
 
 
@@ -18,3 +20,20 @@ planets = [
     Planet(7, "Uranus", "light grey"),
     Planet(8, "Neptune", "cute blue")
 ]
+
+planet_bp = Blueprint("planet_bp", __name__, url_prefix="/planets")
+
+
+@planet_bp.route("", methods=["GET"])
+def get_all_planets():
+    response = []
+    for planet in planets:
+        planet_dict = {
+            "id": planet.id,
+            "name": planet.name,
+            "description": planet.description
+        }
+
+        response.append(planet_dict)
+
+    return jsonify(response), 200
