@@ -1,6 +1,5 @@
 import json
-from pydoc import describe
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, abort, make_response
 
 
 class Planet:
@@ -37,3 +36,33 @@ def get_all_planets():
         response.append(planet_dict)
 
     return jsonify(response), 200
+
+
+@planet_bp.route("/<planet_id>", methods=["GET"])
+def get_one_planet(planet_id):
+    planet = validate_planet(planet_id)
+
+    planet_dict = {
+        "id": planet.id,
+        "name": planet.name,
+        "description": planet.description
+    }
+
+    return jsonify(planet_dict), 200
+
+    # bonus: create planet dict helper function
+
+
+def validate_planet(planet_id):
+    try:
+        planet_id = int(planet_id)
+    except:
+        response_str = f"Invalid planet id: {planet_id}. ID must be an integer."
+        abort(make_response({"message": response_str}, 400))
+
+    for planet in planets:
+        if planet.id == planet_id:
+            return planet
+
+    response_str = f"Could not find planet: {planet_id}."
+    abort(make_response({"message": response_str}, 404))
