@@ -24,6 +24,22 @@ def get_all_planets():
     return jsonify(response), 200
 
 
+@planet_bp.route("", methods=["POST"])
+def create_planet():
+    request_body = request.get_json()
+
+    new_planet = Planet(
+        name=request_body["name"],
+        description=request_body["description"],
+        radius=request_body["radius"],
+    )
+
+    db.session.add(new_planet)
+    db.session.commit()
+
+    return {"id": new_planet.id}, 201
+
+
 # @planet_bp.route("/<planet_id>", methods=["GET"])
 # def get_one_planet(planet_id):
 #     planet = validate_planet(planet_id)
