@@ -1,36 +1,22 @@
 import json
-from flask import Blueprint, jsonify, abort, make_response
+from flask import Blueprint, jsonify, abort, make_response, request
+from app import db
+from app.models.planet import Planet
 
-
-class Planet:
-    def __init__(self, id, name, description):
-        self.id = id
-        self.name = name
-        self.description = description
-
-
-planets = [
-    Planet(1, "Mercury", "gray"),
-    Planet(2, "Venus", "orange"),
-    Planet(3, "Earth", "green for now"),
-    Planet(4, "Mars", "red and hot"),
-    Planet(5, "Jupiter", "gassy"),
-    Planet(6, "Saturn", "has rings"),
-    Planet(7, "Uranus", "light grey"),
-    Planet(8, "Neptune", "cute blue")
-]
 
 planet_bp = Blueprint("planet_bp", __name__, url_prefix="/planets")
 
 
 @planet_bp.route("", methods=["GET"])
 def get_all_planets():
+    planets = Planet.query.all()
     response = []
     for planet in planets:
         planet_dict = {
             "id": planet.id,
             "name": planet.name,
-            "description": planet.description
+            "description": planet.description,
+            "radius": planet.radius
         }
 
         response.append(planet_dict)
@@ -38,31 +24,42 @@ def get_all_planets():
     return jsonify(response), 200
 
 
-@planet_bp.route("/<planet_id>", methods=["GET"])
-def get_one_planet(planet_id):
-    planet = validate_planet(planet_id)
+# @planet_bp.route("/<planet_id>", methods=["GET"])
+# def get_one_planet(planet_id):
+#     planet = validate_planet(planet_id)
 
-    planet_dict = {
-        "id": planet.id,
-        "name": planet.name,
-        "description": planet.description
-    }
+#     planet_dict = {
+#         "id": planet.id,
+#         "name": planet.name,
+#         "description": planet.description
+#     }
 
-    return jsonify(planet_dict), 200
+#     return jsonify(planet_dict), 200
 
     # bonus: create planet dict helper function
 
 
-def validate_planet(planet_id):
-    try:
-        planet_id = int(planet_id)
-    except:
-        response_str = f"Invalid planet id: {planet_id}. ID must be an integer."
-        abort(make_response({"message": response_str}, 400))
+# def validate_planet(planet_id):
+#     try:
+#         planet_id = int(planet_id)
+#     except:
+#         response_str = f"Invalid planet id: {planet_id}. ID must be an integer."
+#         abort(make_response({"message": response_str}, 400))
 
-    for planet in planets:
-        if planet.id == planet_id:
-            return planet
+#     for planet in planets:
+#         if planet.id == planet_id:
+#             return planet
 
-    response_str = f"Could not find planet: {planet_id}."
-    abort(make_response({"message": response_str}, 404))
+#     response_str = f"Could not find planet: {planet_id}."
+#     abort(make_response({"message": response_str}, 404))
+
+# planets = [
+#     Planet(1, "Mercury", "gray"),
+#     Planet(2, "Venus", "orange"),
+#     Planet(3, "Earth", "green for now"),
+#     Planet(4, "Mars", "red and hot"),
+#     Planet(5, "Jupiter", "gassy"),
+#     Planet(6, "Saturn", "has rings"),
+#     Planet(7, "Uranus", "light grey"),
+#     Planet(8, "Neptune", "cute blue")
+# ]
