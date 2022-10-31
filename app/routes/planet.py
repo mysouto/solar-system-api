@@ -75,34 +75,35 @@ def create_planet():
     return {"id": new_planet.id}, 201
 
 
-# @planet_bp.route("/<planet_id>", methods=["GET"])
-# def get_one_planet(planet_id):
-#     planet = validate_planet(planet_id)
+@planet_bp.route("/<planet_id>", methods=["DELETE"])
+def delete_planet(planet_id):
+    planet = validate_planet(planet_id)
 
-#     planet_dict = {
-#         "id": planet.id,
-#         "name": planet.name,
-#         "description": planet.description
-#     }
+    db.session.delete(planet)
+    db.session.commit()
 
-#     return jsonify(planet_dict), 200
-
-    # bonus: create planet dict helper function
+    return make_response(f"Planet {planet_id} successfully deleted.")
 
 
-# def validate_planet(planet_id):
-#     try:
-#         planet_id = int(planet_id)
-#     except:
-#         response_str = f"Invalid planet id: {planet_id}. ID must be an integer."
-#         abort(make_response({"message": response_str}, 400))
+@planet_bp.route("/<planet_id>", methods=["PUT"])
+def update_planet(planet_id):
+    planet = validate_planet(planet_id)
+    request_body = request.get_json()
 
-#     for planet in planets:
-#         if planet.id == planet_id:
-#             return planet
+# put if clause in helper function?
+    if "name" not in request_body or \
+        "description" not in request_body or \
+            "radius" not in request_body:
+        return jsonify({"message": "Request must include name, description, and radius"}), 400
 
-#     response_str = f"Could not find planet: {planet_id}."
-#     abort(make_response({"message": response_str}, 404))
+    planet.name = request_body['name']
+    planet.description = request_body['description']
+    planet.radius = request_body['radius']
+
+    db.session.commit()
+
+    return make_response(f"Planet {planet_id} updated successfully", 200)
+
 
 # planets = [
 #     Planet(1, "Mercury", "gray"),
