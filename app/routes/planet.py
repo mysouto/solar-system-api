@@ -1,3 +1,4 @@
+from crypt import methods
 import json
 from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
@@ -7,21 +8,55 @@ from app.models.planet import Planet
 planet_bp = Blueprint("planet_bp", __name__, url_prefix="/planets")
 
 
+def make_planet_dict(planet):
+    planet_dict = {
+        "id": planet.id,
+        "name": planet.name,
+        "description": planet.description,
+        "radius": planet.radius
+    }
+
+    return planet_dict
+
+
+# validate planet
+def validate_planet(planet_id):
+    try:
+        planet_id = int(planet_id)
+    except ValueError:
+        response_str = f"Planet ID {planet_id} invalid. ID must be an integer."
+        abort(make_response({"message": response_str}, 400))
+
+    planet = Planet.query.get(planet_id)
+
+    # 404 not found
+    if not planet:
+        response_str = f"Planet ID {planet_id} not found."
+        abort(make_response({"message": response_str}, 404))
+
+    return planet
+
+
 @planet_bp.route("", methods=["GET"])
 def get_all_planets():
     planets = Planet.query.all()
     response = []
     for planet in planets:
-        planet_dict = {
-            "id": planet.id,
-            "name": planet.name,
-            "description": planet.description,
-            "radius": planet.radius
-        }
+        planet_dict = make_planet_dict(planet)
 
         response.append(planet_dict)
 
     return jsonify(response), 200
+
+
+@planet_bp.route("/<planet_id>", methods=["GET"])
+def get_one_planet(planet_id):
+    # planet = Planet.query.get(planet_id)
+    planet = validate_planet(planet_id)
+
+    planet_dict = make_planet_dict(planet)
+
+    return jsonify(planet_dict), 200
 
 
 @planet_bp.route("", methods=["POST"])
