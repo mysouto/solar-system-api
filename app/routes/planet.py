@@ -44,7 +44,7 @@ def get_all_planets():
         planets = Planet.query.all()
     else:
         planets = Planet.query.filter_by(name = name_param)
-        
+
     response = []
     for planet in planets:
         planet_dict = make_planet_dict(planet)
