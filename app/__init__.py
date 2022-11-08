@@ -2,6 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+#Carina was here!
+
 # import new env
 from dotenv import load_dotenv
 import os
